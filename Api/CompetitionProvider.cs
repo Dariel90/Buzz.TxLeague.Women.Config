@@ -7,9 +7,9 @@ namespace TxLeagueTool.Api
 {
     public static class CompetitionProvider
     {
-        const string URL = "https://xml2.txodds.com/feed/competitions.php?ident=trial_papasport&passwd=PZp8wBV4QM&sid=18,19,20,21,22,23,24&spid={0}";
+        private const string URL = "https://xml2.txodds.com/feed/competitions.php?ident=trial_papasport&passwd=PZp8wBV4QM&sid=21,22,23,24&spid={0}";
 
-        public static  async Task<TxCompetitions> GetCompetitions(int sportId)
+        public static async Task<TxCompetitions> GetCompetitions(int sportId)
         {
             TxCompetitions result = null;
 
@@ -26,6 +26,5 @@ namespace TxLeagueTool.Api
 
             return result;
         }
-
     }
 }

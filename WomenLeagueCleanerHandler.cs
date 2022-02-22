@@ -42,22 +42,22 @@ namespace Buzz.TxLeague.Women.Config
 
         public void Handle()
         {
-            _lineshouseContext.TxLeagueMaps.Load();
-            _lineshouseContext.Leagues.Where(m => m.SportId != 12).ToList();
+            //_lineshouseContext.TxLeagueMaps.Load();
+            //_lineshouseContext.Leagues.Where(m => m.SportId != 12).ToList();
 
-            var a = _lineshouseContext.TxLeagueMaps.Local;
-            var b = _lineshouseContext.Leagues.Local;
+            //var a = _lineshouseContext.TxLeagueMaps.Local;
+            //var b = _lineshouseContext.Leagues.Local;
 
             foreach (var sport in _sports)
             {
                 Console.WriteLine($"{sport.Value.sportName} starts....");
 
                 var competitions = CompetitionProvider.GetCompetitions(sport.Key).Result.TxLeague;
-                var womenCompetitions = GetCompetitions(competitions.ToList(), true).ToList();
-                foreach (var apiWomenCompetition in womenCompetitions)
-                    ProcessTxWomenCompetition(apiWomenCompetition);
+                //var womenCompetitions = GetWomenCompetitions(competitions.ToList()).ToList();
+                //foreach (var apiWomenCompetition in womenCompetitions)
+                //    ProcessTxWomenCompetition(apiWomenCompetition);
 
-                var menCompetitions = GetCompetitions(competitions.ToList(), false).ToList();
+                var menCompetitions = GetManCompetitions(competitions.ToList()).ToList();
                 foreach (var apiMenCompetition in menCompetitions)
                     ProcessTxMenCompetition(apiMenCompetition);
             }
@@ -65,18 +65,32 @@ namespace Buzz.TxLeague.Women.Config
             _lineshouseContext.SaveChanges();
         }
 
-        private IEnumerable<TxCompetition> GetCompetitions(IEnumerable<TxCompetition> txCompetitions, bool isWomen = true)
+        private IEnumerable<TxCompetition> GetWomenCompetitions(IEnumerable<TxCompetition> txCompetitions)
         {
-            return txCompetitions.Where(x => x.mgname.StartsWith("W") == isWomen
-                        || StringContainsWomen(x.name, "(w)") == isWomen || StringContainsWomen(x.name, "women") == isWomen
-                        || StringContainsWomen(x.name, "femenie") == isWomen || StringContainsWomen(x.name, "mulheres") == isWomen
-                        || StringContainsWomen(x.name, "femenina") == isWomen || StringContainsWomen(x.name, "féminin") == isWomen
-                        || StringContainsWomen(x.name, "féminine") == isWomen
-                        || StringContainsWomen(x.name, "feminine") == isWomen || StringContainsWomen(x.name, "WTA") == isWomen
-                        || StringContainsWomen(x.name, "femrave") == isWomen || StringContainsWomen(x.name, "feminino") == isWomen
-                        || StringContainsWomen(x.name, "femenino") == isWomen || StringContainsWomen(x.name, "feminina") == isWomen
-                        || StringContainsWomen(x.name, "feminin") == isWomen || StringContainsWomen(x.name, "mujeres") == isWomen
-                        || StringContainsWomen(x.name, "women's") == isWomen || StringContainsWomen(x.name, "femminile") == isWomen);
+            return txCompetitions.Where(x => x.mgname.StartsWith("W")
+                        || StringContainsWomen(x.name, "(w)") || StringContainsWomen(x.name, "women")
+                        || StringContainsWomen(x.name, "femenie") || StringContainsWomen(x.name, "mulheres")
+                        || StringContainsWomen(x.name, "femenina") || StringContainsWomen(x.name, "féminin")
+                        || StringContainsWomen(x.name, "féminine")
+                        || StringContainsWomen(x.name, "feminine") || StringContainsWomen(x.name, "WTA")
+                        || StringContainsWomen(x.name, "femrave") || StringContainsWomen(x.name, "feminino")
+                        || StringContainsWomen(x.name, "femenino") || StringContainsWomen(x.name, "feminina")
+                        || StringContainsWomen(x.name, "feminin") || StringContainsWomen(x.name, "mujeres")
+                        || StringContainsWomen(x.name, "women's") || StringContainsWomen(x.name, "femminile"));
+        }
+
+        private IEnumerable<TxCompetition> GetManCompetitions(IEnumerable<TxCompetition> txCompetitions)
+        {
+            return txCompetitions.Where(x => !x.mgname.StartsWith("W")
+                        && !StringContainsWomen(x.name, "(w)") && !StringContainsWomen(x.name, "women")
+                        && !StringContainsWomen(x.name, "femenie") && !StringContainsWomen(x.name, "mulheres")
+                        && !StringContainsWomen(x.name, "femenina") && !StringContainsWomen(x.name, "féminin")
+                        && !StringContainsWomen(x.name, "féminine")
+                        && !StringContainsWomen(x.name, "feminine") && !StringContainsWomen(x.name, "WTA")
+                        && !StringContainsWomen(x.name, "femrave") && !StringContainsWomen(x.name, "feminino")
+                        && !StringContainsWomen(x.name, "femenino") && !StringContainsWomen(x.name, "feminina")
+                        && !StringContainsWomen(x.name, "feminin") && !StringContainsWomen(x.name, "mujeres")
+                        && !StringContainsWomen(x.name, "women's") && !StringContainsWomen(x.name, "femminile"));
         }
 
         private bool StringContainsWomen(string name, string match)
