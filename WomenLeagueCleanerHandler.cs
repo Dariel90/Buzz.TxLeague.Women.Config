@@ -67,10 +67,11 @@ namespace Buzz.TxLeague.Women.Config
 
         private IEnumerable<TxCompetition> GetCompetitions(IEnumerable<TxCompetition> txCompetitions, bool isWomen = true)
         {
-            return txCompetitions.Where(x => x.mgname.StartsWith("W")
+            return txCompetitions.Where(x => x.mgname.StartsWith("W") == isWomen
                         || StringContainsWomen(x.name, "(w)") == isWomen || StringContainsWomen(x.name, "women") == isWomen
                         || StringContainsWomen(x.name, "femenie") == isWomen || StringContainsWomen(x.name, "mulheres") == isWomen
                         || StringContainsWomen(x.name, "femenina") == isWomen || StringContainsWomen(x.name, "féminin") == isWomen
+                        || StringContainsWomen(x.name, "féminine") == isWomen
                         || StringContainsWomen(x.name, "feminine") == isWomen || StringContainsWomen(x.name, "WTA") == isWomen
                         || StringContainsWomen(x.name, "femrave") == isWomen || StringContainsWomen(x.name, "feminino") == isWomen
                         || StringContainsWomen(x.name, "femenino") == isWomen || StringContainsWomen(x.name, "feminina") == isWomen
@@ -85,7 +86,7 @@ namespace Buzz.TxLeague.Women.Config
 
         private void ProcessTxWomenCompetition(TxCompetition apiCompetition)
         {
-            Console.WriteLine($"Men Competition: {apiCompetition.pgname}");
+            Console.WriteLine($"Women Competition: {apiCompetition.pgname}");
 
             var txWomenCompetition = _lineshouseContext.TxLeagueMaps.Find(apiCompetition.pgid);
 
@@ -94,13 +95,13 @@ namespace Buzz.TxLeague.Women.Config
                 var womenLeague = _lineshouseContext.Leagues.Find(txWomenCompetition.LeagueId);
                 if (womenLeague == null) return;
                 if (womenLeague.Name.ToLower().Contains("(w)")) return;
-                WriteToFile($"cnid={apiCompetition.cnid},cgid={apiCompetition.cgid},name=\"{apiCompetition.name}\",pgname=\"{apiCompetition.pgname}\",mgname=\"{apiCompetition.mgname}\",spid={1},lineshousespid={29}, pgId={apiCompetition.pgid}", _fileWomenLeague);
+                WriteToFile($"cnid={apiCompetition.cnid},cgid={apiCompetition.cgid},name=\"{apiCompetition.name}\",pgname=\"{apiCompetition.pgname}\",mgname=\"{apiCompetition.mgname}\",spid={1},lineshousespid={29}, pgId={apiCompetition.pgid}, ->  {txWomenCompetition.LeagueId}", _fileWomenLeague);
             }
         }
 
         private void ProcessTxMenCompetition(TxCompetition apiCompetition)
         {
-            Console.WriteLine($"Women Competition: {apiCompetition.pgname}");
+            Console.WriteLine($"Men Competition: {apiCompetition.pgname}");
 
             var txmenCompetition = _lineshouseContext.TxLeagueMaps.Find(apiCompetition.pgid);
 
@@ -108,8 +109,8 @@ namespace Buzz.TxLeague.Women.Config
             {
                 var menLeague = _lineshouseContext.Leagues.Find(txmenCompetition.LeagueId);
                 if (menLeague == null) return;
-                if (!menLeague.Name.ToLower().Contains("(w)")) return;
-                WriteToFile($"cnid={apiCompetition.cnid},cgid={apiCompetition.cgid},name=\"{apiCompetition.name}\",pgname=\"{apiCompetition.pgname}\",mgname=\"{apiCompetition.mgname}\",spid={1},lineshousespid={29}, pgId={apiCompetition.pgid}", _fileMenLeague);
+                if (menLeague.Name.ToLower().Contains("(w)"))
+                    WriteToFile($"cnid={apiCompetition.cnid},cgid={apiCompetition.cgid},name=\"{apiCompetition.name}\",pgname=\"{apiCompetition.pgname}\",mgname=\"{apiCompetition.mgname}\",spid={1},lineshousespid={29}, pgId={apiCompetition.pgid}, ->  {txmenCompetition.LeagueId}", _fileMenLeague);
             }
         }
 
