@@ -11,10 +11,10 @@ namespace Buzz.TxLeague.Women.Config
 {
     public class WomenLeagueCleanerHandler
     {
+        private LineshouseContext _lineshouseContext;
+        private DgsContext _dgsContext;
 
-        LineshouseContext _lineshouseContext;
-        DgsContext _dgsContext;
-        Dictionary<int, (string sportName, int lsSportId)> _sports = new()
+        private Dictionary<int, (string sportName, int lsSportId)> _sports = new()
         {
             { 7, ("baseball", 3) },
             { 3, ("basketball", 4) },
@@ -34,17 +34,16 @@ namespace Buzz.TxLeague.Women.Config
         public WomenLeagueCleanerHandler(LineshouseContext context, DgsContext dgsContext)
         {
             _lineshouseContext = context;
-            _dgsContext= dgsContext;
+            _dgsContext = dgsContext;
         }
-
 
         public void Handle()
         {
             _lineshouseContext.TxLeagueMaps.Load();
             _lineshouseContext.Leagues.Where(m => m.SportId != 12).ToList();
 
-            var a  =_lineshouseContext.TxLeagueMaps.Local;
-            var b  =_lineshouseContext.Leagues.Local;
+            var a = _lineshouseContext.TxLeagueMaps.Local;
+            var b = _lineshouseContext.Leagues.Local;
 
             foreach (var sport in _sports)
             {
@@ -68,7 +67,7 @@ namespace Buzz.TxLeague.Women.Config
                         || StringContainsWomen(x.name, "feminine") || StringContainsWomen(x.name, "WTA")
                         || StringContainsWomen(x.name, "femrave") || StringContainsWomen(x.name, "feminino")
                         || StringContainsWomen(x.name, "femenino") || StringContainsWomen(x.name, "feminina")
-                        || StringContainsWomen(x.name, "feminin"));
+                        || StringContainsWomen(x.name, "feminin") || StringContainsWomen(x.name, "femminile"));
         }
 
         private bool StringContainsWomen(string name, string match)
@@ -76,7 +75,7 @@ namespace Buzz.TxLeague.Women.Config
             return name.ToLower().Contains(match);
         }
 
-        void ProcessTxWomenCompetition(TxCompetition apiCompetition)
+        private void ProcessTxWomenCompetition(TxCompetition apiCompetition)
         {
             Console.WriteLine($"Women Competition: {apiCompetition.pgname}");
 
@@ -86,15 +85,15 @@ namespace Buzz.TxLeague.Women.Config
             {
                 var womenLeague = _lineshouseContext.Leagues.Find(txWomenCompetition.LeagueId);
                 if (womenLeague == null) return;
-                if (womenLeague.Name.Contains("(w)")) return;
+                if (womenLeague.Name.ToLower().Contains("(w)")) return;
                 var newWomenLeague = CleanWomenLeagueName(womenLeague);
                 womenLeague.Name = $"{newWomenLeague} (w)";
                 Console.WriteLine($"Competition 'pgid':{apiCompetition.pgid} 'mgname':{apiCompetition.mgname},'name':{apiCompetition.name}," +
-                    $"'pgname':{apiCompetition.pgname} --> New women League Id: {womenLeague.Id}, name: {newWomenLeague} (w)");                
+                    $"'pgname':{apiCompetition.pgname} --> New women League Id: {womenLeague.Id}, name: {newWomenLeague} (w)");
                 _lineshouseContext.SaveChanges();
 
                 var dgsCR_League_WomenLeague = _dgsContext.League.Find(Convert.ToUInt32(womenLeague.Id));
-                if(dgsCR_League_WomenLeague == null) return;
+                if (dgsCR_League_WomenLeague == null) return;
                 dgsCR_League_WomenLeague.Name = $"{newWomenLeague} (w)";
                 _dgsContext.SaveChanges();
             }
@@ -104,8 +103,8 @@ namespace Buzz.TxLeague.Women.Config
         {
             var listOfWomenVariations = new List<string>
             {
-                "(w)","women","women's","femenie","mulheres","femenina","féminin","feminine","WTA","femrave","feminino","femenino","feminina","feminin",
-                "(W)","Women","Women's","Femenie","Mulheres","Femenina","Féminin","Feminine","WTA","Femrave","Feminino","Femenino","Feminina","Feminin"
+                "(w)","women's","women","femenie","mulheres","femenina","féminin","feminine","WTA","femrave","feminino","femenino","feminina","feminin",
+                "(W)","Women's","Women","Femenie","Mulheres","Femenina","Féminin","Feminine","WTA","Femrave","Feminino","Femenino","Feminina","Feminin"
             };
             return womenLeague.Name.Filter(listOfWomenVariations).Trim();
         }
