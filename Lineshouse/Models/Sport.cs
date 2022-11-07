@@ -6,7 +6,7 @@ namespace Buzz.TxLeague.Women.Config.Lineshouse.Models
     {
         public Sport()
         {
-            Leagues = new HashSet<League>();
+            this.Leagues = new HashSet<League>();
         }
 
         public short Id { get; set; }

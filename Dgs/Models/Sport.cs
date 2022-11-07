@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 
-
 namespace Buzz.TxLeague.Women.Config.Dgs.Models
 {
     public class Sport
     {
         public Sport()
         {
-            Leagues = new HashSet<League>();
+            this.Leagues = new HashSet<League>();
         }
 
         public ushort Id { get; set; }

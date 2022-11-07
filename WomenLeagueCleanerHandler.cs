@@ -1,20 +1,20 @@
+using Buzz.TxLeague.Women.Config.Dgs;
+using Buzz.TxLeague.Women.Config.Lineshouse;
+using Buzz.TxLeague.Women.Config.Utils;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Buzz.TxLeague.Women.Config.Lineshouse;
-using Microsoft.EntityFrameworkCore;
 using TxLeagueTool.Api;
-using Buzz.TxLeague.Women.Config.Utils;
-using Buzz.TxLeague.Women.Config.Dgs;
 
 namespace Buzz.TxLeague.Women.Config
 {
     public class WomenLeagueCleanerHandler
     {
-        private LineshouseContext _lineshouseContext;
-        private DgsContext _dgsContext;
+        private readonly LineshouseContext _lineshouseContext;
+        private readonly DgsContext _dgsContext;
 
-        private Dictionary<int, (string sportName, int lsSportId)> _sports = new()
+        private readonly Dictionary<int, (string sportName, int lsSportId)> _sports = new()
         {
             { 7, ("baseball", 3) },
             { 3, ("basketball", 4) },
@@ -33,41 +33,43 @@ namespace Buzz.TxLeague.Women.Config
 
         public WomenLeagueCleanerHandler(LineshouseContext context, DgsContext dgsContext)
         {
-            _lineshouseContext = context;
-            _dgsContext = dgsContext;
+            this._lineshouseContext = context;
+            this._dgsContext = dgsContext;
         }
 
         public void Handle()
         {
-            _lineshouseContext.TxLeagueMaps.Load();
-            _lineshouseContext.Leagues.Where(m => m.SportId != 12).ToList();
+            this._lineshouseContext.TxLeagueMaps.Load();
+            this._lineshouseContext.Leagues.Where(m => m.SportId != 12).ToList();
 
-            var a = _lineshouseContext.TxLeagueMaps.Local;
-            var b = _lineshouseContext.Leagues.Local;
+            var a = this._lineshouseContext.TxLeagueMaps.Local;
+            var b = this._lineshouseContext.Leagues.Local;
 
-            foreach (var sport in _sports)
+            foreach (var sport in this._sports)
             {
                 Console.WriteLine($"{sport.Value.sportName} starts....");
 
                 var competitions = CompetitionProvider.GetCompetitions(sport.Key).Result.TxLeague;
-                var womenCompetitions = GetWomenCompetitions(competitions.ToList()).ToList();
+                var womenCompetitions = this.GetWomenCompetitions(competitions.ToList()).ToList();
                 foreach (var apiWomenCompetition in womenCompetitions)
-                    ProcessTxWomenCompetition(apiWomenCompetition);
+                {
+                    this.ProcessTxWomenCompetition(apiWomenCompetition);
+                }
             }
 
-            _lineshouseContext.SaveChanges();
+            this._lineshouseContext.SaveChanges();
         }
 
         private IEnumerable<TxCompetition> GetWomenCompetitions(IEnumerable<TxCompetition> txCompetitions)
         {
             return txCompetitions.Where(x => x.mgname.StartsWith("W")
-                        || StringContainsWomen(x.name, "(w)") || StringContainsWomen(x.name, "women")
-                        || StringContainsWomen(x.name, "femenie") || StringContainsWomen(x.name, "mulheres")
-                        || StringContainsWomen(x.name, "femenina") || StringContainsWomen(x.name, "féminin")
-                        || StringContainsWomen(x.name, "feminine") || StringContainsWomen(x.name, "WTA")
-                        || StringContainsWomen(x.name, "femrave") || StringContainsWomen(x.name, "feminino")
-                        || StringContainsWomen(x.name, "femenino") || StringContainsWomen(x.name, "feminina")
-                        || StringContainsWomen(x.name, "feminin") || StringContainsWomen(x.name, "femminile"));
+                        || this.StringContainsWomen(x.name, "(w)") || this.StringContainsWomen(x.name, "women")
+                        || this.StringContainsWomen(x.name, "femenie") || this.StringContainsWomen(x.name, "mulheres")
+                        || this.StringContainsWomen(x.name, "femenina") || this.StringContainsWomen(x.name, "féminin")
+                        || this.StringContainsWomen(x.name, "feminine") || this.StringContainsWomen(x.name, "WTA")
+                        || this.StringContainsWomen(x.name, "femrave") || this.StringContainsWomen(x.name, "feminino")
+                        || this.StringContainsWomen(x.name, "femenino") || this.StringContainsWomen(x.name, "feminina")
+                        || this.StringContainsWomen(x.name, "feminin") || this.StringContainsWomen(x.name, "femminile"));
         }
 
         private bool StringContainsWomen(string name, string match)
@@ -79,23 +81,35 @@ namespace Buzz.TxLeague.Women.Config
         {
             Console.WriteLine($"Women Competition: {apiCompetition.pgname}");
 
-            var txWomenCompetition = _lineshouseContext.TxLeagueMaps.Find(apiCompetition.pgid);
+            var txWomenCompetition = this._lineshouseContext.TxLeagueMaps.Find(apiCompetition.pgid);
 
             if (txWomenCompetition != null)
             {
-                var womenLeague = _lineshouseContext.Leagues.Find(txWomenCompetition.LeagueId);
-                if (womenLeague == null) return;
-                if (womenLeague.Name.ToLower().Contains("(w)")) return;
-                var newWomenLeague = CleanWomenLeagueName(womenLeague);
+                var womenLeague = this._lineshouseContext.Leagues.Find(txWomenCompetition.LeagueId);
+                if (womenLeague == null)
+                {
+                    return;
+                }
+
+                if (womenLeague.Name.ToLower().Contains("(w)"))
+                {
+                    return;
+                }
+
+                var newWomenLeague = this.CleanWomenLeagueName(womenLeague);
                 womenLeague.Name = $"{newWomenLeague} (w)";
                 Console.WriteLine($"Competition 'pgid':{apiCompetition.pgid} 'mgname':{apiCompetition.mgname},'name':{apiCompetition.name}," +
                     $"'pgname':{apiCompetition.pgname} --> New women League Id: {womenLeague.Id}, name: {newWomenLeague} (w)");
-                _lineshouseContext.SaveChanges();
+                this._lineshouseContext.SaveChanges();
 
-                var dgsCR_League_WomenLeague = _dgsContext.League.Find(Convert.ToUInt32(womenLeague.Id));
-                if (dgsCR_League_WomenLeague == null) return;
+                var dgsCR_League_WomenLeague = this._dgsContext.League.Find(Convert.ToUInt32(womenLeague.Id));
+                if (dgsCR_League_WomenLeague == null)
+                {
+                    return;
+                }
+
                 dgsCR_League_WomenLeague.Name = $"{newWomenLeague} (w)";
-                _dgsContext.SaveChanges();
+                this._dgsContext.SaveChanges();
             }
         }
 

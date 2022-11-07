@@ -1,5 +1,8 @@
+using Buzz.TxLeague.Women.Config.Dgs.Models;
 using Microsoft.EntityFrameworkCore;
+
 using CR_DTO = Buzz.TxLeague.Women.Config.Dgs.Models;
+
 using DGS_DTO = Buzz.TxLeague.Women.Config.Dgs.Models.DGS;
 
 namespace Buzz.TxLeague.Women.Config.Dgs
@@ -10,9 +13,12 @@ namespace Buzz.TxLeague.Women.Config.Dgs
         public virtual DbSet<CR_DTO::League> League { get; set; }
         public virtual DbSet<CR_DTO::Config> Config { get; set; }
         public virtual DbSet<DGS_DTO::League> DLeague { get; set; }
+        public virtual DbSet<CR_DTO::CR_Event> Events { get; set; }
+        public virtual DbSet<CR_DTO::CR_Fixture> Fixtures { get; set; }
+        public virtual DbSet<CR_DTO::CR_Period> Periods { get; set; }
+
         public DgsContext() : base(GetOptions())
         {
-
         }
 
         private static DbContextOptions<DgsContext> GetOptions()
@@ -60,7 +66,6 @@ namespace Buzz.TxLeague.Women.Config.Dgs
                     .HasDefaultValueSql("(0)");
             });
 
-
             modelBuilder.Entity<CR_DTO::Sport>(entity =>
             {
                 entity.ToTable("CR_Sport");
@@ -80,6 +85,22 @@ namespace Buzz.TxLeague.Women.Config.Dgs
             {
                 entity.ToTable("CR_Config");
                 entity.HasIndex("LeagueId").IsUnique();
+            });
+
+            modelBuilder.Entity<CR_Event>(entity =>
+            {
+                entity.ToTable("CR_Event");
+                entity.HasMany(t => t.Fixtures).WithOne(t => t.Event).OnDelete(DeleteBehavior.Cascade).IsRequired();
+                entity.HasMany(t => t.Periods).WithOne(t => t.Event).OnDelete(DeleteBehavior.Cascade).IsRequired();
+            });
+
+            modelBuilder.Entity<CR_Period>().ToTable("CR_Period");
+
+            modelBuilder.Entity<CR_Fixture>(entity =>
+            {
+                entity.ToTable("CR_Fixture");
+
+                entity.HasIndex(m => m.Type);
             });
         }
     }
