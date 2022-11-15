@@ -11,21 +11,19 @@ namespace Buzz.TxLeague.Women.Config
 {
     public class BasballAndBasketNonMajorPropsHandler
     {
-        private readonly LineshouseContext _lineshouseContext;
         private readonly DgsContext _dgsContext;
 
-        public BasballAndBasketNonMajorPropsHandler(LineshouseContext context, DgsContext dgsContext)
+        public BasballAndBasketNonMajorPropsHandler(DgsContext dgsContext)
         {
-            this._lineshouseContext = context;
             this._dgsContext = dgsContext;
         }
 
         public void Handle()
         {
-            _dgsContext.Config.Load();
-            _dgsContext.League.Load();
+            this._dgsContext.Config.Load();
+            this._dgsContext.League.Load();
 
-            var leaguesConfig = this._dgsContext.Config.Include(x => x.League).Where(x => x.League.SportId == 4 || x.League = 3).Where(x => !(new string[] { "NBA", "WNBA", "MLB" }.Contains(x.League.Description))).ToList();
+            var leaguesConfig = this._dgsContext.Config.Include(x => x.League).Where(x => x.League.SportId == 4 || x.League.SportId == 3).Where(x => !(new string[] { "NBA", "WNBA", "MLB" }.Contains(x.League.Description))).ToList();
 
             foreach (var config in leaguesConfig)
             {

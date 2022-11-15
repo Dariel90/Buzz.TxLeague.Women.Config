@@ -7,7 +7,7 @@ namespace Buzz.TxLeague.Women.Config.Lineshouse
     public class LineshouseContext : DbContext
     {
         public virtual DbSet<League> Leagues { get; set; }
-        public virtual DbSet<Sport> Sports { get; set; }
+        public virtual DbSet<Buzz.TxLeague.Women.Config.Lineshouse.Models.Sport> Sports { get; set; }
         public virtual DbSet<Event> Events { get; set; }
 
         public virtual DbSet<Fixture> Fixtures { get; set; }
@@ -41,8 +41,8 @@ namespace Buzz.TxLeague.Women.Config.Lineshouse
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<TxLeagueMap>().Property(t => t.Name).IsRequired().HasMaxLength(255);
 
-            modelBuilder.Entity<Sport>().Property(t => t.Name).IsRequired().HasMaxLength(255);
-            modelBuilder.Entity<Sport>().HasMany(t => t.Leagues).WithOne(t => t.Sport).OnDelete(DeleteBehavior.Cascade).IsRequired();
+            modelBuilder.Entity<Buzz.TxLeague.Women.Config.Lineshouse.Models.Sport>().Property(t => t.Name).IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Buzz.TxLeague.Women.Config.Lineshouse.Models.Sport>().HasMany(t => t.Leagues).WithOne(t => t.Sport).OnDelete(DeleteBehavior.Cascade).IsRequired();
 
             //League model additional configuration
             modelBuilder.Entity<League>().Property(t => t.Name).IsRequired().HasMaxLength(255);

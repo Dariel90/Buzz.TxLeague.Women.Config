@@ -24,11 +24,12 @@ namespace Buzz.TxLeague.Women.Config
                 Console.WriteLine("1 - Fix Tennis Events landing on Default Tennis League and sync with DGS database");
                 Console.WriteLine("2 - Set new Key for the configuration of leagues For Player Propositions OverUnder");
                 Console.WriteLine("3 - Set new League for PROPS in the config for non-major basketball and baseball leagues");
+                Console.WriteLine("4 - Change the SportId from MU to SOC, for Futsal leagues in DGS");
                 response = Console.ReadLine();
                 switch (response.ToUpper())
                 {
                     case "1":
-                        var tennisTournamentDefaultLeagueHandler = new FixLeaguesForDefaultTennisLeague(new(), new());
+                        var tennisTournamentDefaultLeagueHandler = new FixLeaguesForDefaultTennisLeague(new(), new(), new("xoxb-1244510899716-3316988675411-wJM0nHMGzd4ZczI8ZnuSrrCt"));
                         tennisTournamentDefaultLeagueHandler.Handle();
                         break;
 
@@ -38,8 +39,13 @@ namespace Buzz.TxLeague.Women.Config
                         break;
 
                     case "3":
-                        var handler = new SetNewConfigForPlayerPropsOverUnder(new Lineshouse.LineshouseContext(), new());
-                        handler.Handle();
+                        var basballAndBasketNonMajorPropsHandler = new BasballAndBasketNonMajorPropsHandler(new());
+                        basballAndBasketNonMajorPropsHandler.Handle();
+                        break;
+
+                    case "4":
+                        var fusalSportIdFromMUToSOCHandler = new FutsalConfigHandler(new(), new());
+                        fusalSportIdFromMUToSOCHandler.Handle();
                         break;
                 }
                 //var womenLeagueCleanerHandler = new WomenLeagueCleanerHandler(new(),new());
